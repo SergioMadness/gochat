@@ -7,8 +7,9 @@ import (
 	"net/http"
 )
 
-var messages map[string]chan string = make(map[string]chan string)
-
+/**
+* Handle http request
+*/
 func handleMessage(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello world."))
 
@@ -34,7 +35,13 @@ func handleMessage(w http.ResponseWriter, r *http.Request) {
 //	return result
 //}
 
+/**
+* Chat response handler
+*/
 func handleRequest(w http.ResponseWriter, r *http.Request) {
+	/*
+	* All responses in JSON
+	*/
 	w.Header().Set("Content-Type", "application/json")
 
 	switch r.URL.Path {
@@ -60,9 +67,13 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// Main page
 	http.HandleFunc("/", handleMessage)
+	// Registration
 	http.HandleFunc("/registration", handleRequest)
+	// Login
 	http.HandleFunc("/login", handleRequest)
+	// Messaging (sending, waiting)
 	http.HandleFunc("/messaging", handleRequest)
 
 	err := http.ListenAndServe(":81", nil)

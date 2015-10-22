@@ -1,10 +1,13 @@
 package controllers
 
+/**
+* Messaging service
+*/
+
 import (
 	"chat/config"
 	"chat/models"
 	"chat/models/response"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -51,6 +54,12 @@ func (m Messaging) HandleRequest(w http.ResponseWriter, r *http.Request) {
 					mess := models.NewMessage(config.GetConnection())
 					messagePull = mess.GetUndeliveredMessages(to)
 
+					var newMessage models.Message
+					newMessage.From = from
+					newMessage.To = to
+					newMessage.Body = message
+					messagePull = append(messagePull, newMessage)
+
 					mess.RemoveUndeliveredMessages(to)
 
 					fmt.Println("chan" + string(to) + " exists")
@@ -60,7 +69,7 @@ func (m Messaging) HandleRequest(w http.ResponseWriter, r *http.Request) {
 					jsonResult, err := json.Marshal(messagePull)
 
 					if err == nil {
-						chTo <- hex.EncodeToString(jsonResult[:])
+						chTo <- string(jsonResult)
 					}
 				} else {
 					messageDB := models.NewMessage(config.GetConnection())
@@ -86,13 +95,13 @@ func (m Messaging) HandleRequest(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	jsonResult, err := json.Marshal(result)
+	//	jsonResult, err := json.Marshal(result)
 
-	if err != nil {
-		w.WriteHeader(500)
-	} else {
-		w.Write(jsonResult)
-	}
+	//	if err != nil {
+	//		w.WriteHeader(500)
+	//	} else {
+	//		w.Write(jsonResult)
+	//	}
 }
 
 func (m Messaging) pushUndeliveredMessages(c chan string, to string) {

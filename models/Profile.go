@@ -1,5 +1,9 @@
 package models
 
+/**
+* Profile model
+*/
+
 import (
 	"chat/helpers"
 	"database/sql"

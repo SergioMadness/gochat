@@ -1,5 +1,9 @@
 package models
 
+/**
+* Message model
+*/
+
 import (
 	"database/sql"
 	"fmt"

@@ -1,5 +1,9 @@
 package response
 
+/**
+* Response with messages
+*/
+
 import (
 	"chat/models"
 )
