@@ -23,7 +23,7 @@ func CreateMessaging() *Messaging {
 	return new(Messaging)
 }
 
-func (m Messaging) HandleRequest(w http.ResponseWriter, r *http.Request) {
+func (m *Messaging) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	result := response.NewMessageResponse(0, "")
 
 	message := r.FormValue("msg")
@@ -44,7 +44,7 @@ func (m Messaging) HandleRequest(w http.ResponseWriter, r *http.Request) {
 			chFrom := models.GetMessageChannelWrapper().GetChannel(from, true)
 			chTo := models.GetMessageChannelWrapper().GetChannel(to, false)
 
-			if message != "" {
+			if message != "" {				
 				var messagePull []models.Message
 
 				fmt.Println("Message not empty")
@@ -102,8 +102,4 @@ func (m Messaging) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	//	} else {
 	//		w.Write(jsonResult)
 	//	}
-}
-
-func (m Messaging) pushUndeliveredMessages(c chan string, to string) {
-
 }

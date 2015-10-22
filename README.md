@@ -51,6 +51,11 @@ Long-poll for message receive
 | from     | int | User's id|
 | to  | int | User's id |
 
+```
+:81/friends/online
+```
+Get online users
+
 
 ## The MIT License
 

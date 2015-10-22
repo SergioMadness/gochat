@@ -9,7 +9,7 @@ import (
 
 /**
 * Handle http request
-*/
+ */
 func handleMessage(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello world."))
 
@@ -37,11 +37,11 @@ func handleMessage(w http.ResponseWriter, r *http.Request) {
 
 /**
 * Chat response handler
-*/
+ */
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	/*
 	* All responses in JSON
-	*/
+	 */
 	w.Header().Set("Content-Type", "application/json")
 
 	switch r.URL.Path {
@@ -60,8 +60,10 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		cont := controllers.CreateMessaging()
 		cont.HandleRequest(w, r)
 		break
-	case "/push-message":
-		fmt.Println("Push message")
+	case "/friends/online":
+		fmt.Println("Get online friends")
+		cont := controllers.CreateFriends()
+		cont.GetOnlineUsers(w, r)
 		break
 	}
 }
@@ -75,6 +77,8 @@ func main() {
 	http.HandleFunc("/login", handleRequest)
 	// Messaging (sending, waiting)
 	http.HandleFunc("/messaging", handleRequest)
+	// Friends
+	http.HandleFunc("/friends/online", handleRequest)
 
 	err := http.ListenAndServe(":81", nil)
 	if err != nil {

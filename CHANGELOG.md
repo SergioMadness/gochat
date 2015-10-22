@@ -5,3 +5,4 @@ GoChat changelog
  - chating
  - registration
  - authorization
+ - friends
