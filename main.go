@@ -7,9 +7,11 @@ import (
 	"net/http"
 )
 
+import "github.com/mattes/migrate/migrate"
+
 /**
 * Handle http request
-*/
+ */
 func handleMessage(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello world."))
 
@@ -37,11 +39,11 @@ func handleMessage(w http.ResponseWriter, r *http.Request) {
 
 /**
 * Chat response handler
-*/
+ */
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	/*
 	* All responses in JSON
-	*/
+	 */
 	w.Header().Set("Content-Type", "application/json")
 
 	switch r.URL.Path {
@@ -67,6 +69,15 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	allErrors, ok := migrate.UpSync("mysql://root@/go_chat?charset=utf8", "./migrations")
+	if !ok {
+		fmt.Println("Oh no ...")
+		// do sth with allErrors slice
+		for _, errorO := range allErrors {
+			fmt.Println(errorO.Error())
+		}
+	}
+
 	// Main page
 	http.HandleFunc("/", handleMessage)
 	// Registration
