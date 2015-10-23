@@ -23,7 +23,7 @@ Requirements
 
 Dependencies
 ------------
- - [mattes/migrate](https://github.com/mattes/migrate)
+ - [SergioMadness/migrate](https://github.com/SergioMadness/migrate)
  - [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)
  - [go-yaml/yaml](https://github.com/go-yaml/yaml)
 
