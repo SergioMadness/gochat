@@ -62,8 +62,15 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		cont := controllers.CreateMessaging()
 		cont.HandleRequest(w, r)
 		break
-	case "/push-message":
-		fmt.Println("Push message")
+	case "/friends/online":
+		fmt.Println("Get online friends")
+		cont := controllers.CreateFriends()
+		cont.GetOnlineUsers(w, r)
+		break
+	case "/friends/find":
+		fmt.Println("Find profiles")
+		cont := controllers.CreateFriends()
+		cont.FindUsers(w, r)
 		break
 	}
 }
@@ -95,6 +102,9 @@ func main() {
 		http.HandleFunc("/login", handleRequest)
 		// Messaging (sending, waiting)
 		http.HandleFunc("/messaging", handleRequest)
+		// Friends
+		http.HandleFunc("/friends/online", handleRequest)
+		http.HandleFunc("/friends/find", handleRequest)
 
 		err := http.ListenAndServe(":81", nil)
 		if err != nil {

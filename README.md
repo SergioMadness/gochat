@@ -25,6 +25,7 @@ Dependencies
 ------------
  - [mattes/migrate](https://github.com/mattes/migrate)
  - [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)
+ - [go-yaml/yaml](https://github.com/go-yaml/yaml)
 
 
 Console commands
@@ -63,6 +64,11 @@ Long-poll for message receive
 |-----------|------|-------------|
 | from     | int | User's id|
 | to  | int | User's id |
+
+```
+:81/friends/online
+```
+Get online users
 
 
 ## The MIT License
