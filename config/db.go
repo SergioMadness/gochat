@@ -20,13 +20,15 @@ type DBConfiguration struct {
 
 var connection *sql.DB
 var DBConfig DBConfiguration
+var isConfigLoaded bool
 
 /**
 * Returnes main DB connection
  */
 func GetConnection() *sql.DB {
 	var err error
-	if connection == nil {
+
+	if connection == nil && ((!isConfigLoaded && LoadConfig()) || isConfigLoaded) {
 		dsn := GetDSN()
 		fmt.Println("DSN:" + dsn)
 		connection, err = sql.Open("mysql", dsn)
@@ -40,26 +42,31 @@ func GetConnection() *sql.DB {
 
 /**
 * Prepare DSN
-*/
+ */
 func GetDSN() string {
-	dsn := DBConfig.Login
-	if DBConfig.Password != "" {
-		dsn += ":" + DBConfig.Password
-	}
-	dsn += "@" + DBConfig.Host + "/" + DBConfig.DBname + "?charset=utf8"
+	var dsn string
 	
+	if isConfigLoaded || (!isConfigLoaded && LoadConfig()) {
+		dsn = DBConfig.Login
+		if DBConfig.Password != "" {
+			dsn += ":" + DBConfig.Password
+		}
+		dsn += "@" + DBConfig.Host + "/" + DBConfig.DBname + "?charset=utf8"
+	}
+
 	return dsn
 }
 
 /**
 * Load configuration from yml file
  */
-func LoginConfig() bool {
+func LoadConfig() bool {
 	result := false
 
 	conf, err := ioutil.ReadFile("./gochat.yml")
 	if err == nil && yaml.Unmarshal(conf, &DBConfig) == nil {
 		result = true
+		isConfigLoaded = true
 	}
 
 	return result

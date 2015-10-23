@@ -68,11 +68,24 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func consoleCommand(command string) {
+	switch command {
+	case "install":
+		installer.Install()
+		break
+	case "uninstall":
+		installer.Uninstall()
+		break
+	default:
+		fmt.Println("Unknown command")
+	}
+}
+
 func main() {
 	command := os.Args[1]
 
-	if command == "install" {
-		installer.Start()
+	if command != "" {
+		consoleCommand(command)
 	} else {
 		// Main page
 		http.HandleFunc("/", handleMessage)

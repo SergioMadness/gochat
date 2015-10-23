@@ -10,7 +10,7 @@ import (
 	"github.com/mattes/migrate/migrate"
 )
 
-func Start() {
+func Install() {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Println("This is GoChat installer. It needs some information. Please, answer next questions.")
