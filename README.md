@@ -8,6 +8,8 @@ Project structure
 config					configuration functions
 controllers				request handlers
 helpers					different helpers
+installer				installer & uninstaller
+migrations
 models					models
 	response			response models
 ```
@@ -15,9 +17,20 @@ models					models
 
 Requirements
 ------------
-1. Go compiler
-2. MySQL
+ - [Go compiler](https://golang.org/dl/)
+ - [MySQL](https://www.mysql.com/downloads/)
 
+
+Dependencies
+------------
+ - [mattes/migrate](https://github.com/mattes/migrate)
+ - [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql)
+
+
+Console commands
+----------------
+ - ./chat install
+ - ./chat uninstall
 
 Services
 --------
