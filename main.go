@@ -2,9 +2,11 @@ package main
 
 import (
 	"chat/controllers"
+	"chat/installer"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 /**
@@ -68,20 +70,39 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
-	// Main page
-	http.HandleFunc("/", handleMessage)
-	// Registration
-	http.HandleFunc("/registration", handleRequest)
-	// Login
-	http.HandleFunc("/login", handleRequest)
-	// Messaging (sending, waiting)
-	http.HandleFunc("/messaging", handleRequest)
-	// Friends
-	http.HandleFunc("/friends/online", handleRequest)
+func consoleCommand(command string) {
+	switch command {
+	case "install":
+		installer.Install()
+		break
+	case "uninstall":
+		installer.Uninstall()
+		break
+	default:
+		fmt.Println("Unknown command")
+	}
+}
 
-	err := http.ListenAndServe(":81", nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+func main() {
+	command := os.Args[1]
+
+	if command != "" {
+		consoleCommand(command)
+	} else {
+		// Main page
+		http.HandleFunc("/", handleMessage)
+		// Registration
+		http.HandleFunc("/registration", handleRequest)
+		// Login
+		http.HandleFunc("/login", handleRequest)
+		// Messaging (sending, waiting)
+		http.HandleFunc("/messaging", handleRequest)
+		// Friends
+		http.HandleFunc("/friends/online", handleRequest)
+
+		err := http.ListenAndServe(":81", nil)
+		if err != nil {
+			log.Fatal("ListenAndServe: ", err)
+		}
 	}
 }
