@@ -1,5 +1,9 @@
 package controllers
 
+/**
+* Login service
+*/
+
 import (
 	"chat/config"
 	"chat/helpers"

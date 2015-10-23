@@ -1,5 +1,9 @@
 package models
 
+/**
+* Message model
+ */
+
 import (
 	"database/sql"
 	"fmt"
@@ -7,19 +11,20 @@ import (
 )
 
 type Message struct {
+	Model
+
 	id         int
 	From       int
 	To         int
 	Body       string
 	CreateDate int64
 	IsRead     bool
-	Conn       *sql.DB
 }
 
 func NewMessage(conn *sql.DB) *Message {
 	result := new(Message)
 
-	result.Conn = conn
+	result.SetConnection(conn)
 
 	return result
 }
@@ -27,7 +32,7 @@ func NewMessage(conn *sql.DB) *Message {
 func (m *Message) GetUndeliveredMessages(to int) []Message {
 	var result []Message
 
-	rows, err := m.Conn.Query("SELECT * FROM messages WHERE `to`=? AND is_delivered=0", to)
+	rows, err := m.GetConnection().Query("SELECT * FROM messages WHERE `to`=? AND is_delivered=0", to)
 
 	if err == nil {
 		for rows.Next() {
@@ -46,11 +51,11 @@ func (m *Message) GetUndeliveredMessages(to int) []Message {
 }
 
 func (m *Message) RemoveUndeliveredMessages(to int) {
-	m.Conn.Query("DELETE FROM messages WHERE `to`=?", to)
+	m.GetConnection().Query("DELETE FROM messages WHERE `to`=?", to)
 }
 
 func (m *Message) Save() bool {
-	stmt, err := m.Conn.Prepare("INSERT INTO messages (`from`, `to`, `message`, `atime`, `is_delivered`) VALUES (?, ?, ?, ?, ?)")
+	stmt, err := m.GetConnection().Prepare("INSERT INTO messages (`from`, `to`, `message`, `atime`, `is_delivered`) VALUES (?, ?, ?, ?, ?)")
 
 	if err != nil {
 		fmt.Println(err)

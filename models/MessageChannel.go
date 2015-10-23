@@ -14,6 +14,9 @@ func GetMessageChannelWrapper() MessageChannel {
 	return messageChannels
 }
 
+/**
+* Get channel by user's ID
+*/
 func (mc MessageChannel) GetChannel(name int, needCreation bool) chan string {
 
 	if needCreation && mc.messages[name] == nil {
@@ -21,4 +24,17 @@ func (mc MessageChannel) GetChannel(name int, needCreation bool) chan string {
 	}
 
 	return mc.messages[name]
+}
+
+/**
+* Get online users
+*/
+func (mc MessageChannel) GetChannelKeys() []int {
+	var result []int
+
+	for key := range messageChannels.messages {
+		result = append(result, key)
+	}
+
+	return result
 }

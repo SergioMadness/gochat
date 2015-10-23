@@ -1,5 +1,9 @@
 package response
 
+/**
+* Response with user's profile
+*/
+
 import (
 	"chat/models"
 )

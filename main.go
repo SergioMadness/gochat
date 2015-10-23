@@ -2,13 +2,16 @@ package main
 
 import (
 	"chat/controllers"
+	"chat/installer"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
-var messages map[string]chan string = make(map[string]chan string)
-
+/**
+* Handle http request
+ */
 func handleMessage(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello world."))
 
@@ -34,7 +37,13 @@ func handleMessage(w http.ResponseWriter, r *http.Request) {
 //	return result
 //}
 
+/**
+* Chat response handler
+ */
 func handleRequest(w http.ResponseWriter, r *http.Request) {
+	/*
+	* All responses in JSON
+	 */
 	w.Header().Set("Content-Type", "application/json")
 
 	switch r.URL.Path {
@@ -53,20 +62,53 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		cont := controllers.CreateMessaging()
 		cont.HandleRequest(w, r)
 		break
-	case "/push-message":
-		fmt.Println("Push message")
+	case "/friends/online":
+		fmt.Println("Get online friends")
+		cont := controllers.CreateFriends()
+		cont.GetOnlineUsers(w, r)
+		break
+	case "/friends/find":
+		fmt.Println("Find profiles")
+		cont := controllers.CreateFriends()
+		cont.FindUsers(w, r)
 		break
 	}
 }
 
-func main() {
-	http.HandleFunc("/", handleMessage)
-	http.HandleFunc("/registration", handleRequest)
-	http.HandleFunc("/login", handleRequest)
-	http.HandleFunc("/messaging", handleRequest)
+func consoleCommand(command string) {
+	switch command {
+	case "install":
+		installer.Install()
+		break
+	case "uninstall":
+		installer.Uninstall()
+		break
+	default:
+		fmt.Println("Unknown command")
+	}
+}
 
-	err := http.ListenAndServe(":81", nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+func main() {
+	command := os.Args[1]
+
+	if command != "" {
+		consoleCommand(command)
+	} else {
+		// Main page
+		http.HandleFunc("/", handleMessage)
+		// Registration
+		http.HandleFunc("/registration", handleRequest)
+		// Login
+		http.HandleFunc("/login", handleRequest)
+		// Messaging (sending, waiting)
+		http.HandleFunc("/messaging", handleRequest)
+		// Friends
+		http.HandleFunc("/friends/online", handleRequest)
+		http.HandleFunc("/friends/find", handleRequest)
+
+		err := http.ListenAndServe(":81", nil)
+		if err != nil {
+			log.Fatal("ListenAndServe: ", err)
+		}
 	}
 }

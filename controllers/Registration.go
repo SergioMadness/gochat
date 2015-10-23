@@ -1,5 +1,9 @@
 package controllers
 
+/**
+* Registration service
+*/
+
 import (
 	"chat/config"
 	"chat/models"
