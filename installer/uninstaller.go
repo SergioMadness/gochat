@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mattes/migrate/migrate"
+	"github.com/SergioMadness/migrate/migrate"
 )
 
 func Uninstall() {

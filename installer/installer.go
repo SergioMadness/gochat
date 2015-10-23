@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/mattes/migrate/migrate"
+	"github.com/SergioMadness/migrate/migrate"
 )
 
 func Install() {
