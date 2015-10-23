@@ -5,8 +5,5 @@ GoChat changelog
  - chating
  - registration
  - authorization
-<<<<<<< HEAD
  - friends
-=======
  - installer/uninstaller
->>>>>>> dev

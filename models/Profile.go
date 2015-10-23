@@ -5,7 +5,6 @@ package models
  */
 
 import (
-	"chat/config"
 	"chat/helpers"
 	"database/sql"
 	"fmt"
@@ -23,6 +22,10 @@ type Profile struct {
 	Model
 }
 
+/**
+* Save user's profile
+* Insert to DB
+ */
 func (p *Profile) Save() bool {
 	stmt, err := p.GetConnection().Prepare("INSERT INTO profile (username, password, reg_date, is_blocked) VALUES (?, ?, ?, ?)")
 	fmt.Println("Password3: " + p.GetPassword())
@@ -35,20 +38,23 @@ func (p *Profile) Save() bool {
 	return true
 }
 
-func (p *Profile) GetId() int {
-	return p.id
-}
-
+/**
+* Get user's password
+ */
 func (p *Profile) GetPassword() string {
 	return p.password
 }
 
+/**
+* Set password
+ */
 func (p *Profile) SetPassword(password string) {
-	fmt.Println("Password: " + password)
 	p.password = helpers.GetMD5(password)
-	fmt.Println("Password2: " + p.password)
 }
 
+/**
+* Create new profile
+ */
 func NewProfile(conn *sql.DB) *Profile {
 	result := new(Profile)
 
@@ -58,6 +64,9 @@ func NewProfile(conn *sql.DB) *Profile {
 	return result
 }
 
+/**
+* Find profile by login and password
+ */
 func (p *Profile) FindByCredentials(username, password string) *Profile {
 	rp := NewProfile(p.GetConnection())
 
@@ -73,10 +82,13 @@ func (p *Profile) FindByCredentials(username, password string) *Profile {
 	return rp
 }
 
+/**
+* Get list of users by IDs
+ */
 func (p *Profile) GetUsersByIds(ids []int) []Profile {
 	var result []Profile
 
-	rows, err := config.GetConnection().Query("SELECT * FROM profile WHERE id IN (" + helpers.JoinI(ids, ",") + ")")
+	rows, err := p.GetConnection().Query("SELECT * FROM profile WHERE id IN (" + helpers.JoinI(ids, ",") + ")")
 
 	if err == nil {
 		for rows.Next() {
@@ -92,6 +104,9 @@ func (p *Profile) GetUsersByIds(ids []int) []Profile {
 	return result
 }
 
+/**
+*Find profile by username
+ */
 func (p *Profile) FindByUsername(username string) *Profile {
 	rp := NewProfile(p.GetConnection())
 
@@ -103,4 +118,28 @@ func (p *Profile) FindByUsername(username string) *Profile {
 	}
 
 	return rp
+}
+
+/**
+* Search for profiles
+ */
+func (p *Profile) Find(searchStr string) []Profile {
+	var result []Profile
+
+	rows, err := p.GetConnection().Query(fmt.Sprintf("SELECT * FROM profile WHERE username LIKE '%%%s%%'", searchStr))
+
+	if err == nil {
+		for rows.Next() {
+			var profile Profile
+			if err := rows.Scan(&profile.Id, &profile.Username, &profile.password, &profile.RegDate, &profile.IsBlocked); err != nil {
+				log.Fatal(err)
+			} else {
+				result = append(result, profile)
+			}
+		}
+	} else {
+		fmt.Println(err.Error())
+	}
+
+	return result
 }

@@ -37,3 +37,28 @@ func (f *Friends) GetOnlineUsers(w http.ResponseWriter, req *http.Request) {
 		w.Write(jsonResult)
 	}
 }
+
+/**
+* Find profiles
+*/
+func (f *Friends) FindUsers(w http.ResponseWriter, req *http.Request) {
+	result := response.NewFriendsReponse(0, "")
+
+	searchStr := req.FormValue("searchStr")
+
+	if searchStr == "" {
+		result.Result = 400
+		result.ResultMessage = "searchStr param is required"
+		w.WriteHeader(400)
+	} else {
+		result.Data = models.NewProfile(config.GetConnection()).Find(searchStr)
+	}
+
+	jsonResult, err := json.Marshal(result)
+
+	if err != nil {
+		w.WriteHeader(500)
+	} else {
+		w.Write(jsonResult)
+	}
+}
