@@ -2,12 +2,12 @@ package main
 
 import (
 	"chat/controllers"
+	"chat/installer"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
-
-import "github.com/mattes/migrate/migrate"
 
 /**
 * Handle http request
@@ -68,27 +68,37 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
-	allErrors, ok := migrate.UpSync("mysql://root@/go_chat?charset=utf8", "./migrations")
-	if !ok {
-		fmt.Println("Oh no ...")
-		// do sth with allErrors slice
-		for _, errorO := range allErrors {
-			fmt.Println(errorO.Error())
-		}
+func consoleCommand(command string) {
+	switch command {
+	case "install":
+		installer.Install()
+		break
+	case "uninstall":
+		installer.Uninstall()
+		break
+	default:
+		fmt.Println("Unknown command")
 	}
+}
 
-	// Main page
-	http.HandleFunc("/", handleMessage)
-	// Registration
-	http.HandleFunc("/registration", handleRequest)
-	// Login
-	http.HandleFunc("/login", handleRequest)
-	// Messaging (sending, waiting)
-	http.HandleFunc("/messaging", handleRequest)
+func main() {
+	command := os.Args[1]
 
-	err := http.ListenAndServe(":81", nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+	if command != "" {
+		consoleCommand(command)
+	} else {
+		// Main page
+		http.HandleFunc("/", handleMessage)
+		// Registration
+		http.HandleFunc("/registration", handleRequest)
+		// Login
+		http.HandleFunc("/login", handleRequest)
+		// Messaging (sending, waiting)
+		http.HandleFunc("/messaging", handleRequest)
+
+		err := http.ListenAndServe(":81", nil)
+		if err != nil {
+			log.Fatal("ListenAndServe: ", err)
+		}
 	}
 }
