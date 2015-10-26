@@ -38,8 +38,8 @@ func (r *Registration) HandleRequest(w http.ResponseWriter, req *http.Request) {
 
 			result.Data = profile
 		} else {
-			result.Result = 404
-			result.ResultMessage = "User not found"
+			result.Result = 403
+			result.ResultMessage = "Account exists"
 		}
 	}
 

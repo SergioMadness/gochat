@@ -80,6 +80,9 @@ func consoleCommand(command string) {
 	case "install":
 		installer.Install()
 		break
+	case "config":
+		installer.Config()
+		break
 	case "uninstall":
 		installer.Uninstall()
 		break
