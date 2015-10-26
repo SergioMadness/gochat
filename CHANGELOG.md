@@ -1,7 +1,7 @@
 GoChat changelog
 ================
 
-### 0.2 in development
+### 0.2 26.10.2015
  - online user notify
  - configurator
  - bug fixes
