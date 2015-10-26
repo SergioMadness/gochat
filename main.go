@@ -92,7 +92,11 @@ func consoleCommand(command string) {
 }
 
 func main() {
-	command := os.Args[1]
+	command := ""
+
+	if len(os.Args) > 1 {
+		command = os.Args[1]
+	}
 
 	if command != "" {
 		consoleCommand(command)
