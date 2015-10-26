@@ -1,4 +1,4 @@
-GoChat v0.1
+GoChat v0.2
 ===========
 
 Project structure
@@ -32,6 +32,7 @@ Console commands
 ----------------
  - ./chat install
  - ./chat uninstall
+ - ./chat config
 
 Services
 --------
