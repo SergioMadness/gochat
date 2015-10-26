@@ -9,13 +9,14 @@ import (
 )
 
 type MessageResponse struct {
-	Response
+	LongPollResponse
 	Data []models.Message
 }
 
 func NewMessageResponse(resultCode int, resultMessage string) *MessageResponse {
 	result := new(MessageResponse)
 
+	result.ResponseType = RESPONSE_TYPE_MESSAGE
 	result.Result = resultCode
 	result.ResultMessage = resultMessage
 

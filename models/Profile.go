@@ -83,6 +83,21 @@ func (p *Profile) FindByCredentials(username, password string) *Profile {
 }
 
 /**
+* Get profile by ID
+ */
+func (p *Profile) GetById(id int) *Profile {
+	result := NewProfile(p.GetConnection())
+
+	err := p.GetConnection().QueryRow("SELECT * FROM profile WHERE id=?", id).Scan(&result.Id, &result.Username, &result.password, &result.RegDate, &result.IsBlocked)
+
+	if result.Id <= 0 || err != nil {
+		return nil
+	}
+
+	return result
+}
+
+/**
 * Get list of users by IDs
  */
 func (p *Profile) GetUsersByIds(ids []int) []Profile {
@@ -110,10 +125,9 @@ func (p *Profile) GetUsersByIds(ids []int) []Profile {
 func (p *Profile) FindByUsername(username string) *Profile {
 	rp := NewProfile(p.GetConnection())
 
-	err := p.GetConnection().QueryRow("SELECT * FROM profile WHERE username=?", username).Scan(&rp.id, &rp.Username, &rp.password, &rp.RegDate, &rp.IsBlocked)
+	err := p.GetConnection().QueryRow("SELECT * FROM profile WHERE username=?", username).Scan(&rp.Id, &rp.Username, &rp.password, &rp.RegDate, &rp.IsBlocked)
 
-	if rp.id <= 0 || err != nil {
-		fmt.Println(err.Error())
+	if rp.Id <= 0 || err != nil {
 		return nil
 	}
 
