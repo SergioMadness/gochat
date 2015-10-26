@@ -27,6 +27,13 @@ func (mc MessageChannel) GetChannel(name int, needCreation bool) chan string {
 }
 
 /**
+* Get all channels
+*/
+func (mc MessageChannel) GetChannels() map[int]chan string {
+	return mc.messages
+}
+
+/**
 * Get online users
 */
 func (mc MessageChannel) GetChannelKeys() []int {

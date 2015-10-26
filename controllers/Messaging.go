@@ -2,7 +2,7 @@ package controllers
 
 /**
 * Messaging service
-*/
+ */
 
 import (
 	"chat/config"
@@ -24,13 +24,13 @@ func CreateMessaging() *Messaging {
 }
 
 func (m *Messaging) HandleRequest(w http.ResponseWriter, r *http.Request) {
-	result := response.NewMessageResponse(0, "")
-
 	message := r.FormValue("msg")
 	fromStr := r.FormValue("from")
 	toStr := r.FormValue("to")
 
 	if fromStr == "" {
+		result := response.NewMessageResponse(0, "")
+
 		w.WriteHeader(400)
 		result.Result = 400
 		result.ResultMessage = "Who are you?"
@@ -41,48 +41,17 @@ func (m *Messaging) HandleRequest(w http.ResponseWriter, r *http.Request) {
 		if errFrom == nil {
 			fmt.Println("Get channels")
 
-			chFrom := models.GetMessageChannelWrapper().GetChannel(from, true)
+			chFrom := models.GetMessageChannelWrapper().GetChannel(from, false)
+			if chFrom == nil {
+				m.notifyChannels(from)
+				chFrom = models.GetMessageChannelWrapper().GetChannel(from, true)
+			}
 			chTo := models.GetMessageChannelWrapper().GetChannel(to, false)
 
-			if message != "" {				
-				var messagePull []models.Message
-
-				fmt.Println("Message not empty")
-				if chTo != nil {
-					fmt.Println("Undelivered")
-
-					mess := models.NewMessage(config.GetConnection())
-					messagePull = mess.GetUndeliveredMessages(to)
-
-					var newMessage models.Message
-					newMessage.From = from
-					newMessage.To = to
-					newMessage.Body = message
-					messagePull = append(messagePull, newMessage)
-
-					mess.RemoveUndeliveredMessages(to)
-
-					fmt.Println("chan" + string(to) + " exists")
-
-					fmt.Println("message: " + message)
-
-					jsonResult, err := json.Marshal(messagePull)
-
-					if err == nil {
-						chTo <- string(jsonResult)
-					}
-				} else {
-					messageDB := models.NewMessage(config.GetConnection())
-					messageDB.Body = message
-					messageDB.From = from
-					messageDB.To = to
-					messageDB.CreateDate = time.Now().Local().Unix()
-					messageDB.IsRead = false
-					messageDB.Save()
-				}
+			if message != "" {
+				m.sendMessage(w, to, from, message, chTo)
 			} else {
-				fmt.Println("reconnect")
-				io.WriteString(w, <-chFrom)
+				m.updateConnection(w, from, chFrom)
 			}
 		} else {
 			if errFrom != nil {
@@ -94,12 +63,75 @@ func (m *Messaging) HandleRequest(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(400)
 		}
 	}
+}
 
-	//	jsonResult, err := json.Marshal(result)
+func (m *Messaging) sendMessage(w http.ResponseWriter, to, from int, message string, chTo chan string) {
+	if chTo != nil {
+		fmt.Println("Undelivered")
 
-	//	if err != nil {
-	//		w.WriteHeader(500)
-	//	} else {
-	//		w.Write(jsonResult)
-	//	}
+		messageResponse := response.NewMessageResponse(0, "")
+
+		mess := models.NewMessage(config.GetConnection())
+		messagePull := mess.GetUndeliveredMessages(to)
+
+		var newMessage models.Message
+		newMessage.From = from
+		newMessage.To = to
+		newMessage.Body = message
+		messagePull = append(messagePull, newMessage)
+
+		mess.RemoveUndeliveredMessages(to)
+
+		messageResponse.Data = messagePull
+
+		fmt.Println("chan" + string(to) + " exists")
+
+		fmt.Println("message: " + message)
+
+		jsonResult, err := json.Marshal(messageResponse)
+
+		if err == nil {
+			chTo <- string(jsonResult)
+		}
+	} else {
+		messageDB := models.NewMessage(config.GetConnection())
+		messageDB.Body = message
+		messageDB.From = from
+		messageDB.To = to
+		messageDB.CreateDate = time.Now().Local().Unix()
+		messageDB.IsRead = false
+		messageDB.Save()
+	}
+}
+
+func (m *Messaging) updateConnection(w http.ResponseWriter, id int, chFrom chan string) {
+	fmt.Println("reconnect")
+
+	io.WriteString(w, <-chFrom)
+}
+
+func (m *Messaging) notifyChannels(id int) {
+	chanels := models.GetMessageChannelWrapper().GetChannels()
+	
+	profileO := models.NewProfile(config.GetConnection())
+
+	profile := profileO.GetById(id)
+
+	fmt.Println(profile.Id)
+
+	if profile != nil && profile.Id > 0 {
+		newOnlineFriendResponse := response.NewOnlineFriendResponse(0, "")
+		newOnlineFriendResponse.Data = profile
+		jsonResult, err := json.Marshal(newOnlineFriendResponse)
+		
+		fmt.Println(string(jsonResult))
+
+		if err == nil {
+			for key, channel := range chanels {
+				if key != id {
+					channel <- string(jsonResult)
+				}
+			}
+		}
+	}
 }
