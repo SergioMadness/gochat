@@ -1,8 +1,10 @@
 package main
 
 import (
+	"chat/config"
 	"chat/controllers"
 	"chat/installer"
+	"chat/models"
 	"fmt"
 	"log"
 	"net/http"
@@ -46,32 +48,40 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	 */
 	w.Header().Set("Content-Type", "application/json")
 
-	switch r.URL.Path {
-	case "/registration":
-		fmt.Println("Registration")
-		cont := controllers.CreateRegistration()
-		cont.HandleRequest(w, r)
-		break
-	case "/login":
+	token := r.FormValue("access-token")
+	if token != "" {
+		config.GetSession().SetCurrentUser(models.NewProfile(config.GetConnection()).GetByToken(token))
+	}
+
+	if r.URL.Path == "/login" {
 		fmt.Println("Login")
 		cont := controllers.CreateLogin()
 		cont.HandleRequest(w, r)
-		break
-	case "/messaging":
-		fmt.Println("Messaging")
-		cont := controllers.CreateMessaging()
-		cont.HandleRequest(w, r)
-		break
-	case "/friends/online":
-		fmt.Println("Get online friends")
-		cont := controllers.CreateFriends()
-		cont.GetOnlineUsers(w, r)
-		break
-	case "/friends/find":
-		fmt.Println("Find profiles")
-		cont := controllers.CreateFriends()
-		cont.FindUsers(w, r)
-		break
+	} else if config.GetSession().IsLoggedIn() {
+		switch r.URL.Path {
+		case "/registration":
+			fmt.Println("Registration")
+			cont := controllers.CreateRegistration()
+			cont.HandleRequest(w, r)
+			break
+		case "/messaging":
+			fmt.Println("Messaging")
+			cont := controllers.CreateMessaging()
+			cont.HandleRequest(w, r)
+			break
+		case "/friends/online":
+			fmt.Println("Get online friends")
+			cont := controllers.CreateFriends()
+			cont.GetOnlineUsers(w, r)
+			break
+		case "/friends/find":
+			fmt.Println("Find profiles")
+			cont := controllers.CreateFriends()
+			cont.FindUsers(w, r)
+			break
+		}
+	} else {
+		w.WriteHeader(403)
 	}
 }
 
