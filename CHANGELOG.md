@@ -1,6 +1,9 @@
 GoChat changelog
 ================
 
+### 1.0 In development
+ - goroutines
+
 ### 0.2 26.10.2015
  - online user notify
  - configurator

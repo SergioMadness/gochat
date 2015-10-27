@@ -1,4 +1,4 @@
-GoChat v0.2
+GoChat v0.3
 ===========
 
 Project structure

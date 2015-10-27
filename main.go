@@ -51,6 +51,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Registration")
 		cont := controllers.CreateRegistration()
 		cont.HandleRequest(w, r)
+
 		break
 	case "/login":
 		fmt.Println("Login")

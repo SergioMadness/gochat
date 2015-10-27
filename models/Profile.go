@@ -27,12 +27,14 @@ type Profile struct {
 * Insert to DB
  */
 func (p *Profile) Save() bool {
-	stmt, err := p.GetConnection().Prepare("INSERT INTO profile (username, password, reg_date, is_blocked) VALUES (?, ?, ?, ?)")
-	fmt.Println("Password3: " + p.GetPassword())
-	_, err = stmt.Exec(p.Username, p.password, p.RegDate, p.IsBlocked)
+	stmt, _ := p.GetConnection().Prepare("INSERT INTO profile (username, password, reg_date, is_blocked) VALUES (?, ?, ?, ?)")
+	insertResult, insertErr := stmt.Exec(p.Username, p.password, p.RegDate, p.IsBlocked)
 
-	if err != nil {
+	if insertErr != nil {
 		return false
+	} else {
+		lastId, _ := insertResult.LastInsertId()
+		p.Id = int(lastId)
 	}
 
 	return true
@@ -156,4 +158,10 @@ func (p *Profile) Find(searchStr string) []Profile {
 	}
 
 	return result
+}
+
+func (p *Profile) GetOpenKey() *OpenKey {
+	openKey := NewOpenKey(p.GetConnection())
+
+	return openKey.GetByIdProfile(p.Id)
 }

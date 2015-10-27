@@ -2,7 +2,7 @@ package controllers
 
 /**
 * Registration service
-*/
+ */
 
 import (
 	"chat/config"
@@ -24,17 +24,23 @@ func (r *Registration) HandleRequest(w http.ResponseWriter, req *http.Request) {
 
 	username := req.FormValue("login")
 	password := req.FormValue("password")
+	openKey := req.FormValue("openKey")
 
-	if username == "" || password == "" {
+	if username == "" || password == "" || openKey == "" {
 		result.Result = 400
-		result.ResultMessage = "Login and Password are required"
+		result.ResultMessage = "Login, Password and OpenKey are required"
 	} else {
 		profile := models.NewProfile(config.GetConnection())
 
 		if profile.FindByUsername(username) == nil {
 			profile.Username = username
 			profile.SetPassword(password)
-			profile.Save()
+			if profile.Save() {
+				profileKey := models.NewOpenKey(config.GetConnection())
+				profileKey.IdProfile = profile.Id
+				profileKey.Key = openKey
+				profileKey.Save()
+			}
 
 			result.Data = profile
 		} else {

@@ -43,13 +43,13 @@ func (m *Messaging) HandleRequest(w http.ResponseWriter, r *http.Request) {
 
 			chFrom := models.GetMessageChannelWrapper().GetChannel(from, false)
 			if chFrom == nil {
-				m.notifyChannels(from)
+				go m.notifyChannels(from)
 				chFrom = models.GetMessageChannelWrapper().GetChannel(from, true)
 			}
 			chTo := models.GetMessageChannelWrapper().GetChannel(to, false)
 
 			if message != "" {
-				m.sendMessage(w, to, from, message, chTo)
+				go m.sendMessage(w, to, from, message, chTo)
 			} else {
 				m.updateConnection(w, from, chFrom)
 			}
@@ -112,19 +112,15 @@ func (m *Messaging) updateConnection(w http.ResponseWriter, id int, chFrom chan 
 
 func (m *Messaging) notifyChannels(id int) {
 	chanels := models.GetMessageChannelWrapper().GetChannels()
-	
+
 	profileO := models.NewProfile(config.GetConnection())
 
 	profile := profileO.GetById(id)
-
-	fmt.Println(profile.Id)
 
 	if profile != nil && profile.Id > 0 {
 		newOnlineFriendResponse := response.NewOnlineFriendResponse(0, "")
 		newOnlineFriendResponse.Data = profile
 		jsonResult, err := json.Marshal(newOnlineFriendResponse)
-		
-		fmt.Println(string(jsonResult))
 
 		if err == nil {
 			for key, channel := range chanels {
