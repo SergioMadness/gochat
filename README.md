@@ -31,6 +31,7 @@ Dependencies
 Console commands
 ----------------
  - ./chat install
+ - ./chat update
  - ./chat uninstall
  - ./chat config
 
