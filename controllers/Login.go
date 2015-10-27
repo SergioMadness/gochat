@@ -2,7 +2,7 @@ package controllers
 
 /**
 * Login service
-*/
+ */
 
 import (
 	"chat/config"
@@ -32,6 +32,10 @@ func (r Login) HandleRequest(w http.ResponseWriter, req *http.Request) {
 		result.ResultMessage = "Login and Password are required"
 	} else {
 		profile := models.NewProfile(config.GetConnection()).FindByCredentials(login, helpers.GetMD5(password))
+
+		if profile != nil {
+			profile.UpdateToken()
+		}
 
 		result.Data = profile
 	}
