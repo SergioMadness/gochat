@@ -46,6 +46,7 @@ Registrtation service.
 |-----------|------|-------------|
 | login     | string | User's login|
 | password  | string | User's password |
+| openKey   | string | User's open key |
 
 ```
 :81/login
