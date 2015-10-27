@@ -28,7 +28,7 @@ func (m *Messaging) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	fromStr := r.FormValue("from")
 	toStr := r.FormValue("to")
 
-	if fromStr == "" {
+	if fromStr == "" || !config.GetSession().IsLoggedIn() || !config.GetSession().GetCurrentUser().GetOpenKey().Validate(message, "") {
 		result := response.NewMessageResponse(0, "")
 
 		w.WriteHeader(400)
