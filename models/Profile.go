@@ -179,9 +179,10 @@ func (p *Profile) FindByUsername(username string) *Profile {
 func (p *Profile) GetByToken(token string) *Profile {
 	rp := NewProfile(p.GetConnection())
 
-	err := p.GetConnection().QueryRow("SELECT id, username, password, reg_date, is_blocked FROM profile WHERE access_token=?", token).Scan(&rp.id, &rp.Username, &rp.password, &rp.RegDate, &rp.IsBlocked)
+	err := p.GetConnection().QueryRow("SELECT id, username, password, reg_date, is_blocked FROM profile WHERE access_token=?", token).Scan(&rp.Id, &rp.Username, &rp.password, &rp.RegDate, &rp.IsBlocked)
 
 	if rp.Id <= 0 || err != nil {
+//		fmt.Println("Invalid token: " + err.Error())
 		return nil
 	}
 

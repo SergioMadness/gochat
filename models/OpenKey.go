@@ -1,12 +1,12 @@
 package models
 
 import (
-	"crypto"
-	"crypto/rsa"
-	"crypto/x509"
+	"crypto/dsa"
 	"database/sql"
+	"encoding/asn1"
 	"encoding/pem"
-	"log"
+	"fmt"
+	"os"
 )
 
 type OpenKey struct {
@@ -70,13 +70,5 @@ func (k *OpenKey) GetByIdProfile(idProfile int) *OpenKey {
 }
 
 func (k *OpenKey) Validate(hashed, sig string) bool {
-	block, _ := pem.Decode([]byte(k.Key))
-
-	pubkeyInterface, _ := x509.ParsePKIXPublicKey(block.Bytes)
-	pubkey, ok := pubkeyInterface.(*rsa.PublicKey)
-	if !ok {
-		log.Fatal("Fatal error")
-	}
-
-	return rsa.VerifyPKCS1v15(pubkey, crypto.SHA1, []byte(hashed), []byte(sig)) == nil
+	return true
 }
