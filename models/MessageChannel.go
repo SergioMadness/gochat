@@ -1,14 +1,14 @@
 package models
 
 type MessageChannel struct {
-	messages map[int]chan string
+	messages map[int]map[int]chan string
 }
 
 var messageChannels MessageChannel
 
 func GetMessageChannelWrapper() MessageChannel {
 	if messageChannels.messages == nil {
-		messageChannels.messages = make(map[int]chan string)
+		messageChannels.messages = make(map[int]map[int]chan string)
 	}
 
 	return messageChannels
@@ -17,19 +17,22 @@ func GetMessageChannelWrapper() MessageChannel {
 /**
 * Get channel by user's ID
  */
-func (mc MessageChannel) GetChannel(name int, needCreation bool) chan string {
+func (mc MessageChannel) GetChannel(idChatRoom int, idUser int, needCreation bool) chan string {
 
-	if needCreation && mc.messages[name] == nil {
-		mc.messages[name] = make(chan string)
+	if needCreation {
+		if mc.messages[idChatRoom] == nil {
+			mc.messages[idChatRoom] = make(map[int]chan string)
+		}
+		mc.messages[idChatRoom][idUser] = make(chan string)
 	}
 
-	return mc.messages[name]
+	return mc.messages[idChatRoom][idUser]
 }
 
 /**
 * Get all channels
  */
-func (mc MessageChannel) GetChannels() map[int]chan string {
+func (mc MessageChannel) GetChannels() map[int]map[int]chan string {
 	return mc.messages
 }
 
@@ -44,4 +47,10 @@ func (mc MessageChannel) GetChannelKeys() []int {
 	}
 
 	return result
+}
+
+func (mc MessageChannel) PutToChanel(id int, message string) {
+	for _, channel := range mc.messages[id] {
+		channel <- string(message)
+	}
 }

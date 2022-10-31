@@ -5,7 +5,7 @@ package response
 */
 
 import (
-	"chat/models"
+	"socialchat/models"
 )
 
 type MessageResponse struct {

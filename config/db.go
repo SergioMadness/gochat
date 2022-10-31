@@ -12,7 +12,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-import _ "github.com/go-sql-driver/mysql"
+import _ "github.com/lib/pq"
 
 type DBConfiguration struct {
 	Host, Login, Password, DBname string
@@ -31,7 +31,7 @@ func GetConnection() *sql.DB {
 	if connection == nil && ((!isConfigLoaded && LoadConfig()) || isConfigLoaded) {
 		dsn := GetDSN()
 		fmt.Println("DSN:" + dsn)
-		connection, err = sql.Open("mysql", dsn)
+		connection, err = sql.Open("postgres", dsn)
 		if err != nil {
 			fmt.Println(err.Error())
 		}
@@ -45,13 +45,14 @@ func GetConnection() *sql.DB {
  */
 func GetDSN() string {
 	var dsn string
-	
+
 	if isConfigLoaded || (!isConfigLoaded && LoadConfig()) {
-		dsn = DBConfig.Login
+		dsn = "postgres://" + DBConfig.Login
 		if DBConfig.Password != "" {
+			fmt.Println(DBConfig.Password)
 			dsn += ":" + DBConfig.Password
 		}
-		dsn += "@" + DBConfig.Host + "/" + DBConfig.DBname + "?charset=utf8"
+		dsn += "@" + DBConfig.Host + "/" + DBConfig.DBname + "?sslmode=disable"
 	}
 
 	return dsn
@@ -65,8 +66,11 @@ func LoadConfig() bool {
 
 	conf, err := ioutil.ReadFile("./gochat.yml")
 	if err == nil && yaml.Unmarshal(conf, &DBConfig) == nil {
+		fmt.Println(DBConfig)
 		result = true
 		isConfigLoaded = true
+	} else {
+		fmt.Println(err)
 	}
 
 	return result

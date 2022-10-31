@@ -1,6 +1,6 @@
 package config
 
-import "chat/models"
+import "socialchat/models"
 
 type Session struct {
 	currentUser *models.Profile

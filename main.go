@@ -1,14 +1,11 @@
 package main
 
 import (
-	"chat/config"
-	"chat/controllers"
-	"chat/installer"
-	"chat/models"
-	"fmt"
 	"log"
 	"net/http"
-	"os"
+	"socialchat/config"
+	"socialchat/controllers"
+	"socialchat/models"
 )
 
 /**
@@ -20,25 +17,6 @@ func handleMessage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 }
 
-//func parseSignedMessage(message string) string {
-//	var result string
-
-//	operCodeParts := extractKeyCode(message)
-
-//	result = operCodeParts[2]
-
-//	return result
-//}
-
-//func extractKeyCode(str string) []string {
-//	var result []string
-
-//	r, _ := regexp.Compile("([a-zA-Z0-9]+)[[:blank:]]+([0-9]+)")
-//	result = r.FindStringSubmatch(str)
-
-//	return result
-//}
-
 /**
 * Chat response handler
  */
@@ -47,37 +25,22 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	* All responses in JSON
 	 */
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	token := r.FormValue("access-token")
 	if token != "" {
 		config.GetSession().SetCurrentUser(models.NewProfile(config.GetConnection()).GetByToken(token))
 	}
 
-	if r.URL.Path == "/login" {
-		fmt.Println("Login")
-		cont := controllers.CreateLogin()
-		cont.HandleRequest(w, r)
-	} else if config.GetSession().IsLoggedIn() {
+	if config.GetSession().IsLoggedIn() {
 		switch r.URL.Path {
-		case "/registration":
-			fmt.Println("Registration")
-			cont := controllers.CreateRegistration()
-			cont.HandleRequest(w, r)
-			break
 		case "/messaging":
-			fmt.Println("Messaging")
-			cont := controllers.CreateMessaging()
-			cont.HandleRequest(w, r)
-			break
-		case "/friends/online":
-			fmt.Println("Get online friends")
-			cont := controllers.CreateFriends()
-			cont.GetOnlineUsers(w, r)
-			break
-		case "/friends/find":
-			fmt.Println("Find profiles")
-			cont := controllers.CreateFriends()
-			cont.FindUsers(w, r)
+			if config.GetSession().IsLoggedIn() {
+				cont := controllers.CreateMessaging()
+				cont.HandleRequest(w, r)
+			} else {
+				w.WriteHeader(400)
+			}
 			break
 		}
 	} else {
@@ -85,50 +48,20 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func consoleCommand(command string) {
-	switch command {
-	case "install":
-		installer.Install()
-		break
-	case "update":
-		installer.Update()
-		break
-	case "config":
-		installer.Config()
-		break
-	case "uninstall":
-		installer.Uninstall()
-		break
-	default:
-		fmt.Println("Unknown command")
-	}
-}
-
 func main() {
-	command := ""
+	// Main page
+	http.HandleFunc("/", handleMessage)
+	// Messaging (sending, waiting)
+	http.HandleFunc("/messaging", handleRequest)
 
-	if len(os.Args) > 1 {
-		command = os.Args[1]
-	}
+	sock := controllers.CreateMessagingSocket()
+	go sock.Start("/messaging/ws")
 
-	if command != "" {
-		consoleCommand(command)
-	} else {
-		// Main page
-		http.HandleFunc("/", handleMessage)
-		// Registration
-		http.HandleFunc("/registration", handleRequest)
-		// Login
-		http.HandleFunc("/login", handleRequest)
-		// Messaging (sending, waiting)
-		http.HandleFunc("/messaging", handleRequest)
-		// Friends
-		http.HandleFunc("/friends/online", handleRequest)
-		http.HandleFunc("/friends/find", handleRequest)
+	p2p := controllers.CreateMessagingP2P()
+	go p2p.Start("/messaging/p2p")
 
-		err := http.ListenAndServe(":81", nil)
-		if err != nil {
-			log.Fatal("ListenAndServe: ", err)
-		}
+	err := http.ListenAndServe(":81", nil)
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
 	}
 }
